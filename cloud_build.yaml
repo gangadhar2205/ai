@@ -1,0 +1,7 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'europe-west2-docker.pkg.dev/playpen-5bf1e3/main/mortgages:0.1','.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'europe-west2-docker.pkg.dev/playpen-5bf1e3/main/mortgages:0.1']
+  images
+-  'europe-west2-docker.pkg.dev/playpen-5bf1e3/main/mortgages:0.1'
