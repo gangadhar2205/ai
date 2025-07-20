@@ -60,6 +60,10 @@ public class UserService {
         return userReqRepository.findByUserId(userId);
     }
 
+    public UserReq getUserDetailsByUserName(String userName) {
+        return userReqRepository.findByUserName(userName);
+    }
+
     public AccessToken validateUser(UserReq userReq) {
         AccessToken accessToken = null;
         try {

@@ -1,1 +1,14 @@
 spring.application.name=ai
+
+
+gcs:
+  bucket-name: file_hand_bucket
+
+document:
+  allowed-mime-types:
+    - application/pdf
+    - application/msword
+    - text/plain
+  max-file-size-mb: 10
+  gcs-bucket: your-bucket-name
+  ai-agent-url: http://your-ai-agent/api/upload
