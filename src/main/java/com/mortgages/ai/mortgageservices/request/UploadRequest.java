@@ -15,5 +15,6 @@ public class UploadRequest {
     private String bucketUrl;
     private String fileType;
     private double fileSize;
+    private String userName;
 }
 

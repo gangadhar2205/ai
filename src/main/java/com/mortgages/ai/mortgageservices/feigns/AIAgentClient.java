@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "aiAgentClient", url = "http://127.0.0.1:9091", configuration = FeignConfig.class)
 public interface AIAgentClient {
 
-    @PostMapping("/your-ai-agent-endpoint") // Replace with actual endpoint
-    AgenticAiResponse sendFile(@RequestBody UploadAiRequestWrapper aiRequestWrapper);
+//    @PostMapping("/your-ai-agent-endpoint") // Replace with actual endpoint
+//    AgenticAiResponse sendFile(@RequestBody UploadAiRequestWrapper aiRequestWrapper);
 
     @PostMapping("/chat") // Replace with actual endpoint
     AgenticAiResponse makeEnquiry(@RequestBody EnquiryRequest aiRequestWrapper);

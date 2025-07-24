@@ -49,7 +49,7 @@ public class UserService {
         this.userReqRepository = userReqRepository;
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder(12, secureRandom);
     }
-    public UserReq registerUser(UserReq userReq) throws JsonProcessingException {
+    public AgenticAipResponse registerUser(UserReq userReq) throws JsonProcessingException {
 
         UserReq existingUser = userReqRepository.findByUserName(userReq.getUserName());
 
@@ -74,21 +74,21 @@ public class UserService {
                         .user_input(aiRequest)
                         .build();
 
-        AipResponse response = aiAgentClient.aip(aipRequest);
+//        AipResponse response = aiAgentClient.aip(aipRequest);
+//
+//        AiDecision aiDecision = AiParser.parseResponse(response);
 
-        AiDecision aiDecision = AiParser.parseResponse(response);
+        AgenticAipResponse agenticAipResponse = buildAgenticAipResponse(savedUser, null);
 
-        AgenticAipResponse agenticAipResponse = buildAgenticAipResponse(savedUser, aiDecision);
-
-        return savedUser;
+        return agenticAipResponse;
     }
 
     private AgenticAipResponse buildAgenticAipResponse(UserReq userReq, AiDecision aiDecision) {
        return  AgenticAipResponse.builder()
                 // From AiDecision
-                .status(aiDecision.getStatus())
-                .reason(aiDecision.getReason())
-                .roi(aiDecision.getRoi())
+//                .status(aiDecision.getStatus())
+//                .reason(aiDecision.getReason())
+//                .roi(aiDecision.getRoi())
 
                 // From UserReq
                 .userId(userReq.getUserId())

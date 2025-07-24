@@ -3,6 +3,7 @@ package com.mortgages.ai.authentication.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mortgages.ai.authentication.request.UserReq;
 import com.mortgages.ai.authentication.response.AccessToken;
+import com.mortgages.ai.authentication.response.AgenticAipResponse;
 import com.mortgages.ai.authentication.response.Auth;
 import com.mortgages.ai.authentication.service.UserService;
 import org.springframework.http.MediaType;
@@ -21,8 +22,8 @@ public class UserController {
     }
 
     @PostMapping(value = "user/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserReq> registerUser(@RequestBody UserReq userReq) throws JsonProcessingException {
-        UserReq registeredUser = userService.registerUser(userReq);
+    public ResponseEntity<AgenticAipResponse> registerUser(@RequestBody UserReq userReq) throws JsonProcessingException {
+        AgenticAipResponse registeredUser = userService.registerUser(userReq);
         return ResponseEntity.status(201).body(registeredUser);
     }
 
