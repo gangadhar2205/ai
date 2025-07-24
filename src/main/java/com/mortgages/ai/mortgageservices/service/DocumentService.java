@@ -349,7 +349,7 @@ public class DocumentService {
 //       if (userReq.getUserName().equals())
         FinalResponse finalResponse = prepareFinalResponse(userReq);
 
-       return null;
+       return finalResponse;
     }
 
     private FinalResponse prepareFinalResponse(UserReq userReq) {
