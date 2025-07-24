@@ -1,9 +1,7 @@
 package com.mortgages.ai.authentication.utils;
 
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -14,6 +12,7 @@ public class KeyUtils {
     public static PrivateKey generatePrivateKey(String key) {
         try {
             byte[] encoded = Base64.getDecoder().decode(key);
+            System.out.println("Key "+key);
             PKCS8EncodedKeySpec keySpecification = new PKCS8EncodedKeySpec(encoded);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePrivate(keySpecification);

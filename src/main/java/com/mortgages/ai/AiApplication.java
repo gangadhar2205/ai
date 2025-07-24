@@ -5,8 +5,10 @@ import com.mortgages.ai.mortgageservices.config.DocumentConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.mortgages.ai")
+@EnableFeignClients(basePackages = "com.mortgages.ai.mortgageservices.feigns")
 @EnableConfigurationProperties({
 		JwtKeyProps.class,
 		DocumentConfig.class

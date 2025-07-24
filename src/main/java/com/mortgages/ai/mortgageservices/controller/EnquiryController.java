@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/")
 public class EnquiryController {
 
     private EnquiryService enquiryService;
@@ -20,9 +20,10 @@ public class EnquiryController {
         this.enquiryService = enquiryService;
     }
 
-    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "mortgage/enquiry", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AgenticAiResponse> enquireAiAgent(@RequestBody EnquiryRequest enquiryRequest) {
         AgenticAiResponse response = enquiryService.makeEnquiry(enquiryRequest);
-        return null;
+        System.out.println("Reponse in ctlr" + response);
+        return ResponseEntity.status(200).body(response);
     }
 }

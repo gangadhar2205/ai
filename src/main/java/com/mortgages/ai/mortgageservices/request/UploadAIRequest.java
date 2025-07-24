@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @AllArgsConstructor
@@ -13,5 +14,5 @@ public class UploadAIRequest {
     private String applicationId;
     private String documentType;
     private String documentName;
-    private byte[] fileContent;
+    private MultipartFile fileContent;
 }

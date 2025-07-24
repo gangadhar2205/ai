@@ -8,34 +8,43 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.hibernate.event.spi.SaveOrUpdateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Autowired
     ApplicationContext applicationContext;
 
-    private final JwtService jwtService;
-    private final UserService userService;
-
-    public JwtAuthFilter(JwtService jwtService, UserService userService) {
-        this.jwtService = jwtService;
-        this.userService = userService;
-    }
+    @Autowired
+    private JwtService jwtService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        System.out.println("Request URI "+path);
+
+        // Skip filter for public endpoints
+        if (path.equals("/api/v1/user/login") || path.equals("/api/v1/user/register")
+         ||  path.equals("/api/v1/mortgage/enquiry")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization");
         String token = null;
@@ -47,34 +56,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         // If token is present, validate it
-        if (userName != null && SecurityContextHolder.getContext().getAuthentication() != null) {
+        if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
+                System.out.println("In tHE FILTER CLASS");
                 UserDetails userDetails = applicationContext.getBean(AuthUserDetailsService.class).loadUserByUsername(userName);
 
                 if (jwtService.validateToken(token, userDetails)) {
+                    System.out.println("Jwt services ");
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    System.out.println("user authorised");
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    System.out.println( SecurityContextHolder.getContext().getAuthentication());
                 }
             } catch (Exception e) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+                System.out.println(e);
                 return;
             }
-        } else if (!isBypassed(request)) {
-            // No token and not a bypassed endpoint
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authorization header required");
-            return;
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    // Optional: custom logic to check if request is bypassed (but config is better)
-    private boolean isBypassed(HttpServletRequest request) {
-        String path = request.getServletPath();
-        return path.equals("/api/auth/login") ||
-                path.equals("/api/auth/register") ||
-                path.equals("/api/health");
     }
 }

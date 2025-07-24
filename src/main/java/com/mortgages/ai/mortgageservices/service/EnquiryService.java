@@ -26,7 +26,10 @@ public class EnquiryService {
                 )
                 .build();
 
-        AgenticAiResponse aiResponse = aiAgentClient.makeEnquiry(aiWrapper);
+        System.out.println(enquiryRequest);
+
+        AgenticAiResponse aiResponse = aiAgentClient.makeEnquiry(enquiryRequest);
+        System.out.println("AI Repise "+aiResponse);
         return aiResponse;
     }
 }

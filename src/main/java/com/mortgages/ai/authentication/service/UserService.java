@@ -1,12 +1,15 @@
 package com.mortgages.ai.authentication.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mortgages.ai.authentication.exception.UserAlreadyExistsException;
-import com.mortgages.ai.authentication.repository.BadCredentialsException;
+import com.mortgages.ai.authentication.exception.BadCredentialsException;
 import com.mortgages.ai.authentication.repository.UserReqRepository;
 import com.mortgages.ai.authentication.request.UserReq;
-import com.mortgages.ai.authentication.response.AccessToken;
-import com.mortgages.ai.authentication.response.Auth;
-import jakarta.persistence.Access;
+import com.mortgages.ai.authentication.response.*;
+import com.mortgages.ai.mortgageservices.feigns.AIAgentClient;
+import com.mortgages.ai.mortgageservices.response.AgenticAiResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,12 +18,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.security.SecureRandom;
-import java.util.Date;
-import java.util.UUID;
+import java.text.NumberFormat;
+import java.util.*;
 
 @Service
 public class UserService {
 
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     private UserReqRepository userReqRepository;
@@ -29,21 +33,26 @@ public class UserService {
 
     private  BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Autowired
+    AIAgentClient aiAgentClient;
+
+    @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    AiParser aiParser;
 
-    public UserService(UserReqRepository userReqRepository, SecureRandom secureRandom, AuthenticationManager authenticationManager) {
+
+    public UserService(UserReqRepository userReqRepository, SecureRandom secureRandom) {
+        this.secureRandom =secureRandom;
         this.userReqRepository = userReqRepository;
-        this.secureRandom = secureRandom;
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder(12, secureRandom);
-        this.authenticationManager = authenticationManager;
     }
-
-    public UserReq registerUser(UserReq userReq) {
+    public UserReq registerUser(UserReq userReq) throws JsonProcessingException {
 
         UserReq existingUser = userReqRepository.findByUserName(userReq.getUserName());
 
-        if(ObjectUtils.isEmpty(existingUser)) {
+        if(!ObjectUtils.isEmpty(existingUser)) {
             throw new UserAlreadyExistsException("4009", "Email or Phone already exists");
         }
 
@@ -51,9 +60,103 @@ public class UserService {
         userReq.setUserId((uuid.toString()).replace("-", "").substring(0, 15));
         userReq.setPassword(bCryptPasswordEncoder.encode(userReq.getPassword()));
         userReq.setCreatedAt(new Date());
+
+        System.out.println(userReq);
         UserReq savedUser = userReqRepository.save(userReq);
+        savedUser.setPassword(null);
+
+        String aiRequest = formAiRequest(savedUser);
+
+        AipResponse response = aiAgentClient.aip(aiRequest);
+
+        AiDecision aiDecision = AiParser.parseResponse(response);
+
+        AgenticAipResponse agenticAipResponse = buildAgenticAipResponse(savedUser, aiDecision);
 
         return savedUser;
+    }
+
+    private AgenticAipResponse buildAgenticAipResponse(UserReq savedUser, AiDecision aiDecision) {
+        return null;
+    }
+
+    public String formAiRequest(UserReq savedUser) throws JsonProcessingException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.UK); // "£"
+
+        // --------- mortgage_needs ------------
+        Map<String, Object> mortgageNeeds = new HashMap<>();
+        mortgageNeeds.put("property_value", currencyFormat.format(savedUser.getPropertyValue()));
+        mortgageNeeds.put("deposit", currencyFormat.format(savedUser.getDeposit()));
+        mortgageNeeds.put("deposit_percentage", savedUser.getDepositPercentage() + "%");
+        mortgageNeeds.put("loan_to_value", savedUser.getLtv() + "%");
+        mortgageNeeds.put("total_borrowing_amount", currencyFormat.format(savedUser.getTotalLoan()));
+        mortgageNeeds.put("who_is_applying", formatApplicant(savedUser.getApplicants()));
+
+        // --------- about_you.personal_details ------------
+        Map<String, Object> personalDetails = new HashMap<>();
+        personalDetails.put("title", savedUser.getTitle());
+        personalDetails.put("first_name", savedUser.getFirstName());
+        personalDetails.put("last_name", savedUser.getLastName());
+        personalDetails.put("name_change", savedUser.isNameChanged() ? "Yes" : "No");
+        personalDetails.put("date_of_birth", "29/08/1996"); // format as "dd/MM/yyyy" if needed
+        personalDetails.put("marital_status", savedUser.getMaritalStatus());
+        personalDetails.put("nationality", savedUser.getNationality());
+        personalDetails.put("gender", "Male");
+
+        // --------- about_you.address_history ------------
+        Map<String, Object> addressHistory = new HashMap<>();
+        addressHistory.put("current_address", "1, wellington place, leeds, West Yorkshire, LS1 4AP");
+        addressHistory.put("residency_status", "Family / friends");
+
+        // --------- about_you.contact_details ------------
+        Map<String, Object> contactDetails = new HashMap<>();
+        contactDetails.put("mobile_number", savedUser.getMobile());
+        contactDetails.put("email_address", savedUser.getEmail());
+
+        // --------- about_you (combined) ------------
+        Map<String, Object> aboutYou = new HashMap<>();
+        aboutYou.put("personal_details", personalDetails);
+        aboutYou.put("address_history", addressHistory);
+        aboutYou.put("contact_details", contactDetails);
+
+        // --------- your_income ------------
+        Map<String, Object> income = new HashMap<>();
+        income.put("number_of_jobs", "1");
+        income.put("employment_status", "Employed");
+        income.put("occupation", "Professional");
+        income.put("contract_type", "permanent");
+        income.put("company_name", "Lloyds Banking Group");
+        income.put("start_date", "29/2025"); // "MM/yyyy"
+        income.put("basic_yearly_income", currencyFormat.format("2,000,000"));
+        income.put("additional_income", currencyFormat.format("0"));
+        income.put("expected_retirement_age", "60");
+
+        // --------- your_outgoings ------------
+        Map<String, Object> outgoings = new HashMap<>();
+        outgoings.put("number_of_child_dependents", 0);
+        outgoings.put("number_of_adult_dependents", 0);
+        outgoings.put("is_property_flat_or_leasehold_house", "no");
+
+        // --------- final root ------------
+        Map<String, Object> root = new LinkedHashMap<>();
+        root.put("mortgage_needs", mortgageNeeds);
+        root.put("about_you", aboutYou);
+        root.put("your_income", income);
+        root.put("your_outgoings", outgoings);
+
+        // --------- wrap in "user_input" string ------------
+        String json = mapper.writeValueAsString(root);
+        Map<String, Object> wrapper = new HashMap<>();
+        wrapper.put("user_input", json.replace("\"", "\\\"")); // escape quotes
+        return mapper.writeValueAsString(wrapper);
+    }
+
+    private static String formatApplicant(String value) {
+        if ("justMe".equalsIgnoreCase(value)) return "Just me";
+        if ("meAndSomeoneElse".equalsIgnoreCase(value)) return "Me and someone else";
+        return value;
     }
 
     public UserReq getUserDetails(String userId) {

@@ -1,4 +1,22 @@
-spring.application.name=ai
+server:
+  port: 8081
+
+spring:
+  application:
+    name: ai
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mortgages
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+jwt:
+  privateKey: MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC2ptk6V5g1sAAhEFrxxPn2tfG+6Nmfp1fDGefS/qPaq1/PGzInrweT9wQguSfBEMmLKTZuqCVMbOOuBz1RCDg/rYts38SbfdFcS/opges8vErm4yhFmBVj8LdB97PaArJG6m7U5EazvLuJdxuCWdxejJG4fBvtEWBT6OR7qou4cs9Z4PxJUgk8Ch781Kzl1VmvSfU2KrFtWH2SQfj4YF9diYubjnK6zwjhOAa8RVLQs7kXaNP/AnuZCIZBY8Hd58P2pb9ur0Vc0SFWK5glJRtvzDnbpm+qtO7nP8+y4P1T7O5V3FCPmuHag4yxVjqsuj39WMfqifaokIFr9pLZeKcRAgMBAAECggEAKmFrfQCPJkHovcNEPt30G/0akzAHMubK08/CfTAth9ME35LRX+jaashBknAz27XP9fTBlwp34RRQ/fPbE97C4m+brs77GRMoDXDpolDtasHL5Wfm08MWj4JumyVk+1xtzkueHNK83v6XSy2yWdwM6HlYZISTnD3Qapfa0CEB23GOt/DmfF9jCpFIUW9A+7qvsG17wT/MiY0G3bdmtPUifF7H4rsOTwzcdrN9RpZcbdOyDSwDTko14XD8mZpeXXHnkeadRK34hLLvqsYHnGTFMGcj/G2N2IfFLdCmOhlCnPodFBXluiYCDbanSEYmpOwESRjIfnmV6m10X68CzrOLawKBgQC4vXPVcpSEjn1rdYmE67gT85kOU3jQWj8O/+02JaKaiYvKVqaa4XQoR34ffb+ob9SJwQ2G5ePtTCcDPeVAs3AIhMSTjCgksMA88D0XknUlWSTth0FdX7EwFG7TsunDvmvLBaWEA6Rkz55GCHb1GNi7fWi5zI8qCM/Kd0OA7sx8vwKBgQD9Gy7L5F7MUdPdRoDTxONPqfGyRcRxeoG1bx3L3a2gCQq9IKk7xVXeZOHYMUmfonM5hlF2J0Kp8vfInbX54jul7uAqugtWVJ4qH/Q8iTg/MxctKJ+VwWD/tCvZnmqD5c/BipBysrRVEHkPseWT7RPzuruDCiNupJhSmcSHJsJALwKBgAr/E+8Ho/mD9ck4tNfZpBpj7J9irpVQWeKNr1QCx3wFZfHEWKRteRmQr9w2AvuGtJMCj8iQ1JFicAwMWiIQzEFljcHunNEaSEcYUbqeeCSh+sW8wFJLiOOAw9wMEUgahJYQHvsNsHJjvVsT0+jg8r2uSFaO65Kn9Z5qnPUGwdtHAoGAfCMr5YaBVDbB8aIVp0fGsRjJ2UTMn1eVbHYuKAH2mSo2ISJ2vkD/546VEiLCWFAlsU4GgCurT41CKBvp18A0vyKUwX/z9YiU9lYrxNEMTDrzoAtvkdSBjYhBhX9kAILjTap3RDoPpjTpG2CGF/JMOdsZAqEjVa3Wo5SVRjAlT7MCgYBezWOYDLsQNHEL2LO2dxgLWcocSkDe8Jye13rZFCdGxGE0HLHgBRjuhvkJkdmmx1I9gYHlfHcCvOPCKuJmDn1s25ZSyk4zu3lXCC1xNzQyMt9jv1J0QLBdFGjis643M64kj1uu63nEemM5xeE6sfdx+k5jrqUKx4urFcIs5Rj18w==
+  publicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtqbZOleYNbAAIRBa8cT59rXxvujZn6dXwxnn0v6j2qtfzxsyJ68Hk/cEILknwRDJiyk2bqglTGzjrgc9UQg4P62LbN/Em33RXEv6KYHrPLxK5uMoRZgVY/C3Qfez2gKyRupu1ORGs7y7iXcbglncXoyRuHwb7RFgU+jke6qLuHLPWeD8SVIJPAoe/NSs5dVZr0n1NiqxbVh9kkH4+GBfXYmLm45yus8I4TgGvEVS0LO5F2jT/wJ7mQiGQWPB3efD9qW/bq9FXNEhViuYJSUbb8w526ZvqrTu5z/PsuD9U+zuVdxQj5rh2oOMsVY6rLo9/VjH6on2qJCBa/aS2XinEQIDAQAB
+  keySpecs: 3600
 
 
 gcs:
@@ -6,9 +24,11 @@ gcs:
 
 document:
   allowed-mime-types:
+    - jpg
+    - png
     - application/pdf
     - application/msword
     - text/plain
-  max-file-size-mb: 10
+  max-file-size-mb: 10000
   gcs-bucket: your-bucket-name
   ai-agent-url: http://your-ai-agent/api/upload

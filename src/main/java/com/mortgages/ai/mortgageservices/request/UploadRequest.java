@@ -13,6 +13,7 @@ public class UploadRequest {
     private String documentName;
     private String fileContentType;
     private String bucketUrl;
+    private String fileType;
     private double fileSize;
 }
 

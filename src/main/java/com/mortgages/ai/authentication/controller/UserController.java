@@ -1,5 +1,6 @@
 package com.mortgages.ai.authentication.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mortgages.ai.authentication.request.UserReq;
 import com.mortgages.ai.authentication.response.AccessToken;
 import com.mortgages.ai.authentication.response.Auth;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class UserController {
 
     private UserService userService;
@@ -18,22 +20,28 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserReq> registerUser(@RequestBody UserReq userReq) {
+    @PostMapping(value = "user/register", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserReq> registerUser(@RequestBody UserReq userReq) throws JsonProcessingException {
         UserReq registeredUser = userService.registerUser(userReq);
         return ResponseEntity.status(201).body(registeredUser);
     }
 
-    @PostMapping(value = "/user/profile", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "user/profile")
     public ResponseEntity<UserReq> getUser(@RequestParam String userId) {
+        System.out.printf("userId "+userId);
         UserReq registeredUser = userService.getUserDetails(userId);
         registeredUser.setPassword(null);
-        return ResponseEntity.status(201).body(registeredUser);
+        return ResponseEntity.status(200).body(registeredUser);
     }
 
-    @PostMapping(value = "/user/login", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "user/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Auth> login(@RequestBody UserReq userReq) {
         AccessToken accessToken = userService.validateUser(userReq);
-        return null;
+        Auth authresp =  Auth
+                .builder()
+                .accessToken(accessToken)
+                .build();
+
+        return ResponseEntity.status(200).body(authresp);
     }
 }
