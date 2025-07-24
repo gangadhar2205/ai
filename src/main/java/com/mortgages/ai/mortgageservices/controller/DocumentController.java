@@ -33,10 +33,10 @@ public class DocumentController {
     }
 
     @GetMapping(value = "/mortgage/submit")
-    public ResponseEntity<UploadResponse> mortgageSubmit(
+    public ResponseEntity<FinalResponse> mortgageSubmit(
            @RequestParam String userId
     ) throws IOException {
         FinalResponse finalResponse = documentService.mortgageSubmit(userId);
-        return null;
+        return ResponseEntity.status(200).body(finalResponse);
     }
 }

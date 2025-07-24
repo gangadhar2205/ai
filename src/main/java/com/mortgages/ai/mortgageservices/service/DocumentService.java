@@ -345,7 +345,8 @@ public class DocumentService {
 
     public FinalResponse mortgageSubmit(String userId) throws JsonProcessingException {
        UserReq userReq = userReqRepository.findByUserId(userId);
-       userService.formAiRequest(userReq);
+//       userService.formAiRequest(userReq);
+//       if (userReq.getUserName().equals())
        return null;
     }
 }
