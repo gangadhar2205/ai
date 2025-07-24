@@ -5,9 +5,10 @@ spring:
   application:
     name: ai
   datasource:
-    url: jdbc:postgresql://localhost:5432/mortgages
-    username: postgres
-    password: postgres
+#    url: jdbc:postgresql://localhost:5432/mortgages
+#    username: postgres
+#    password: postgres
+    url: postgresql://myuser:mypass@postgres-service:5432/mydb
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,7 +21,7 @@ jwt:
 
 
 gcs:
-  bucket-name: file_hand_bucket
+  bucket-name: reboot25ltcnew
 
 document:
   allowed-mime-types:
@@ -30,5 +31,5 @@ document:
     - application/msword
     - text/plain
   max-file-size-mb: 10000
-  gcs-bucket: your-bucket-name
+  gcs-bucket: reboot25ltcnew
   ai-agent-url: http://your-ai-agent/api/upload

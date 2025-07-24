@@ -8,6 +8,7 @@ import com.mortgages.ai.authentication.repository.UserReqRepository;
 import com.mortgages.ai.authentication.request.UserReq;
 import com.mortgages.ai.authentication.response.*;
 import com.mortgages.ai.mortgageservices.feigns.AIAgentClient;
+import com.mortgages.ai.mortgageservices.request.AgenticAipRequest;
 import com.mortgages.ai.mortgageservices.response.AgenticAiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -67,7 +68,13 @@ public class UserService {
 
         String aiRequest = formAiRequest(savedUser);
 
-        AipResponse response = aiAgentClient.aip(aiRequest);
+        AgenticAipRequest aipRequest =
+                AgenticAipRequest
+                        .builder()
+                        .user_input(aiRequest)
+                        .build();
+
+        AipResponse response = aiAgentClient.aip(aipRequest);
 
         AiDecision aiDecision = AiParser.parseResponse(response);
 
@@ -76,8 +83,41 @@ public class UserService {
         return savedUser;
     }
 
-    private AgenticAipResponse buildAgenticAipResponse(UserReq savedUser, AiDecision aiDecision) {
-        return null;
+    private AgenticAipResponse buildAgenticAipResponse(UserReq userReq, AiDecision aiDecision) {
+       return  AgenticAipResponse.builder()
+                // From AiDecision
+                .status(aiDecision.getStatus())
+                .reason(aiDecision.getReason())
+                .roi(aiDecision.getRoi())
+
+                // From UserReq
+                .userId(userReq.getUserId())
+                .userName(userReq.getUserName())
+                .firstName(userReq.getFirstName())
+                .lastName(userReq.getLastName())
+                .password(userReq.getPassword())
+                .createdAt(userReq.getCreatedAt())
+                .mobile(userReq.getMobile())
+                .applicants(userReq.getApplicants())
+                .deposit(userReq.getDeposit())
+                .depositPercentage(userReq.getDepositPercentage())
+                .depositStatus(userReq.getDepositStatus())
+                .email(userReq.getEmail())
+                .firstHome(userReq.isFirstHome())
+                .journey(userReq.getJourney())
+                .ltv(userReq.getLtv())
+                .maritalStatus(userReq.getMaritalStatus())
+                .nameChanged(userReq.isNameChanged())
+                .nationality(userReq.getNationality())
+                .option(userReq.getOption())
+                .propertyValue(userReq.getPropertyValue())
+                .title(userReq.getTitle())
+                .totalLoan(userReq.getTotalLoan())
+                .year(userReq.getYear())
+                .month(userReq.getMonth())
+                .day(userReq.getDay())
+
+                .build();
     }
 
     public String formAiRequest(UserReq savedUser) throws JsonProcessingException {
@@ -87,11 +127,11 @@ public class UserService {
 
         // --------- mortgage_needs ------------
         Map<String, Object> mortgageNeeds = new HashMap<>();
-        mortgageNeeds.put("property_value", currencyFormat.format(savedUser.getPropertyValue()));
+        mortgageNeeds.put("property_value", savedUser.getPropertyValue());
         mortgageNeeds.put("deposit", currencyFormat.format(savedUser.getDeposit()));
         mortgageNeeds.put("deposit_percentage", savedUser.getDepositPercentage() + "%");
         mortgageNeeds.put("loan_to_value", savedUser.getLtv() + "%");
-        mortgageNeeds.put("total_borrowing_amount", currencyFormat.format(savedUser.getTotalLoan()));
+        mortgageNeeds.put("total_borrowing_amount", savedUser.getTotalLoan());
         mortgageNeeds.put("who_is_applying", formatApplicant(savedUser.getApplicants()));
 
         // --------- about_you.personal_details ------------
@@ -129,8 +169,8 @@ public class UserService {
         income.put("contract_type", "permanent");
         income.put("company_name", "Lloyds Banking Group");
         income.put("start_date", "29/2025"); // "MM/yyyy"
-        income.put("basic_yearly_income", currencyFormat.format("2,000,000"));
-        income.put("additional_income", currencyFormat.format("0"));
+        income.put("basic_yearly_income", 2000000);
+        income.put("additional_income", 0);
         income.put("expected_retirement_age", "60");
 
         // --------- your_outgoings ------------
@@ -148,9 +188,7 @@ public class UserService {
 
         // --------- wrap in "user_input" string ------------
         String json = mapper.writeValueAsString(root);
-        Map<String, Object> wrapper = new HashMap<>();
-        wrapper.put("user_input", json.replace("\"", "\\\"")); // escape quotes
-        return mapper.writeValueAsString(wrapper);
+        return json;
     }
 
     private static String formatApplicant(String value) {
