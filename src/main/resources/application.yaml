@@ -8,7 +8,7 @@ spring:
 #    url: jdbc:postgresql://localhost:5432/mortgages
 #    username: postgres
 #    password: postgres
-    url: postgresql://myuser:mypass@postgres-service:5432/mydb
+    url: jdbc:postgresql://myuser:mypass@postgres-service:5432/mydb
   jpa:
     hibernate:
       ddl-auto: update
