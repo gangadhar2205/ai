@@ -347,6 +347,37 @@ public class DocumentService {
        UserReq userReq = userReqRepository.findByUserId(userId);
 //       userService.formAiRequest(userReq);
 //       if (userReq.getUserName().equals())
+        FinalResponse finalResponse = prepareFinalResponse(userReq);
+
        return null;
+    }
+
+    private FinalResponse prepareFinalResponse(UserReq userReq) {
+        if ("oliver.james@gmail.com".equalsIgnoreCase(userReq.getUserName())) {
+           FinalResponse finalResponse = FinalResponse
+                   .builder()
+                   .firstName(userReq.getFirstName())
+                   .lastName(userReq.getLastName())
+                   .userId(userReq.getUserId())
+                   .userName(userReq.getUserName())
+                   .reason("Good credit history, low loan to value")
+                   .status("Approved")
+                   .build();
+           return finalResponse;
+        }
+
+        if ("emily.taylor@gmail.com".equalsIgnoreCase(userReq.getUserName())) {
+            FinalResponse finalResponse = FinalResponse
+                    .builder()
+                    .firstName(userReq.getFirstName())
+                    .lastName(userReq.getLastName())
+                    .userId(userReq.getUserId())
+                    .userName(userReq.getUserName())
+                    .reason("High loan to income, high credit risk, location risk is high")
+                    .status("Rejected")
+                    .build();
+            return finalResponse;
+        }
+        return null;
     }
 }
