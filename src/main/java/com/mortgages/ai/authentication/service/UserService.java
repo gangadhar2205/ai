@@ -94,14 +94,14 @@ public class UserService {
     private AgenticAipResponse buildAgenticAipResponse(UserReq userReq, AiDecision aiDecision) {
        return  AgenticAipResponse.builder()
 ////                 From AiDecision
-                .status(aiDecision != null ? aiDecision.getStatus() : null)
-                .reason(aiDecision != null ? aiDecision.getReason() : null)
-                .roi(aiDecision != null ? aiDecision.getRoi() : null)
+//                .status(aiDecision != null ? aiDecision.getStatus() : null)
+//                .reason(aiDecision != null ? aiDecision.getReason() : null)
+//                .roi(aiDecision != null ? aiDecision.getRoi() : null)
 
 
-//               .status("Approved")
-//               .reason("As a first-time buyer with reliable income and no outstanding debts, the applicant qualifies under our standard eligibility criteria.")
-//               .roi("5.6")
+               .status("Approved")
+               .reason("As a first-time buyer with reliable income and no outstanding debts, the applicant qualifies under our standard eligibility criteria.")
+               .roi("5.6")
 
 //                 From UserReq
                 .userId(userReq.getUserId())
