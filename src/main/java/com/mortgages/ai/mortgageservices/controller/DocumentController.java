@@ -29,7 +29,7 @@ public class DocumentController {
             @RequestPart("request") UploadRequest request
             ) throws IOException {
         UploadResponse uploadResponse = documentService.handleFileServices(files, request);
-        return null;
+        return ResponseEntity.status(201).body(uploadResponse);
     }
 
     @GetMapping(value = "/mortgage/submit")
